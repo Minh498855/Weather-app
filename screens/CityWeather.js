@@ -10,6 +10,7 @@ const CityWeather = ({ route }) => {
         <Text style={styles.cityName}>{city}</Text>
       </View>
     </ImageBackground>
+
   );
 };
 
@@ -22,6 +23,7 @@ const styles = StyleSheet.create({
     height: '100%',
     padding: 20,
     paddingTop: 30,
+    backgroundColor: 'rgba(51,51,51, 0.2)',
   },
   backgroundImage: {
     flex: 1,

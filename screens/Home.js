@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, TouchableOpacity } from 'react-native';
 import { searchCity } from '../services/api';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+
+const col1 = '#4A628A'
+const col2 = '#7AB2D3'
+const col3 = '#B9E5E8'
+const col4 = '#DFF2EB'
 
 const Home = ({ navigation }) => {
   const [city, setCity] = useState('');
@@ -25,10 +32,14 @@ const Home = ({ navigation }) => {
         <TextInput
           style={styles.input}
           placeholder="Enter city"
+          placeholderTextColor='white'
           value={city}
           onChangeText={setCity}
+          onSubmitEditing={handleSearch} 
+
         />
-        <Button title="Search" onPress={handleSearch} />
+        <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}><FontAwesomeIcon style={styles.searchIcon} icon={faMagnifyingGlass}/></TouchableOpacity>
+
       </View>
     </View>
   );
@@ -36,21 +47,38 @@ const Home = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#248dab',
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   inputContainer: {
+    backgroundColor: '#248dab',
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: 'white',
     flexDirection: 'row',
-    width: '90%',
+    marginHorizontal: 30,
+    marginVertical: 30,
+
   },
   input: {
+    fontSize: 18,
     flex: 1,
     padding: 10,
-    borderRadius: 5,
-    backgroundColor: 'white',
-    marginRight: 10,
+    marginLeft: 5,
+    color: 'white',
   },
+  searchBtn: {
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 5,
+  },
+  searchIcon: {
+    color: 'white',
+    marginRight: 5,
+  },
+
   error: {
     color: 'red',
     marginTop: 10,
