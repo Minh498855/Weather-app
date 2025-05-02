@@ -4,14 +4,13 @@ import { searchCity } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
-const col1 = '#4A628A'
-const col2 = '#7AB2D3'
-const col3 = '#B9E5E8'
-const col4 = '#DFF2EB'
+
 
 const Home = ({ navigation }) => {
   const [city, setCity] = useState('');
   const [error, setError] = useState('');
+
+
 
   const handleSearch = async () => {
     try {

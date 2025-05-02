@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUser, faLock, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faLock, faEyeSlash, faEye } from '@fortawesome/free-solid-svg-icons';
 
 export default function Login({ navigation }) {
-
+  const [isClicked, setIsClicked] = useState(true);
+  const eyeIcon = isClicked ? faEyeSlash : faEye; 
+  const hidden = isClicked ? true : false; 
+  
+  const changeHidden = () => {
+      setIsClicked(!isClicked);
+  };
 
   const onButtonPress = () => {
     navigation.navigate("Home");
@@ -28,11 +34,12 @@ export default function Login({ navigation }) {
           <FontAwesomeIcon icon={faLock} size={25} style={styles.icon}/>
           <TextInput 
             style={styles.formInput}
-            secureTextEntry={true}
+            secureTextEntry={hidden}
             placeholder='Password'
             placeholderTextColor="white"
           />
-          <FontAwesomeIcon icon={faEyeSlash} size={25} style={{marginLeft: 170, color: 'white'}}/>
+          <TouchableOpacity onPress={changeHidden} style={styles.eyeIcon}>
+          <FontAwesomeIcon icon={eyeIcon} size={25} style={{color: 'white'}}/></TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.button} onPress={onButtonPress} activeOpacity={0.7}>
@@ -52,9 +59,10 @@ const styles = StyleSheet.create({
   },
   header: {
     flex: 1,
-    fontSize: 70,
+    fontSize: 85,
     color: "white",
     textAlign: "flex-start",
+
   },
   signinForm: {
     flex: 0.5,
@@ -74,12 +82,13 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     borderBottomColor: 'white',
     borderBottomWidth: 1,
+
   },
   formInput: {
     color: 'white',
     paddingVertical: 10, 
     marginLeft: 5,
-    fontSize: 18,
+
   },
   button: {
     backgroundColor: "white",
@@ -95,5 +104,10 @@ const styles = StyleSheet.create({
   icon: {
     marginLeft: 10,
     color: 'white',
-  }
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 10, 
+    color: 'white',
+  },
 });
