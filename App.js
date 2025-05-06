@@ -4,11 +4,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './screens/Home';
 import CityWeatherScreen from './screens/CityWeather';
 import Login from './screens/Login';
+import { CityProvider } from './contexts/CityContext';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
+    <CityProvider>
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
@@ -16,5 +18,6 @@ export default function App() {
         <Stack.Screen name="CityWeather" component={CityWeatherScreen} options={{ title: 'Weather' }} />
       </Stack.Navigator>
     </NavigationContainer>
+    </CityProvider>
   );
 }
