@@ -33,7 +33,7 @@ export const CityProvider = ({ children }) => {
         };
 
         saveFavorites();
-    }, [favorites]);
+    }, [favorites]); 
 
     const addToFavorites = (city) => {
         setFavorites((prev) => (prev.includes(city) ? prev : [...prev, city]));

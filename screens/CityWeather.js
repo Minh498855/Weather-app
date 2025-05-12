@@ -2,16 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ImageBackground, Image, ScrollView, TouchableOpacity} from 'react-native';
 import { getWeather, getWeatherForecast } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faWind, faDroplet, faSun, faCalendarDays } from '@fortawesome/free-solid-svg-icons';
+import { faWind, faDroplet, faSun,  faBars } from '@fortawesome/free-solid-svg-icons';
+import { faClock, faCalendarDays } from '@fortawesome/free-regular-svg-icons';
+
 import { useCityContext } from '../contexts/CityContext';
 
-const CityWeather = ({ route }) => {
-  const { city, image } = route.params;
+const CityWeather = ({ route, navigation }) => {
+  const { city, image, fromSearch = false } = route.params;
   const [weather, setWeather] = useState('');
   const [forecast, setForecast] = useState([]);
   const [error, setError] = useState(null);
+  const { favorites, addToFavorites } = useCityContext();
 
-  const { addToFavorites } = useCityContext();
+  const isFavorite = favorites.includes(city);
 
 
   useEffect(() => {
@@ -38,70 +41,82 @@ const CityWeather = ({ route }) => {
 
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <ScrollView keyboardShouldPersistTaps="handled">
         <ImageBackground source={{ uri: image }} style={styles.backgroundImage}>
           <View style={styles.overlay}>
+            {fromSearch && !isFavorite && (
+              <View style={styles.NotFavContainer}>
+                <TouchableOpacity onPress={() => navigation.navigate('Home')} style={[styles.NotFavContext, { width: '20%' }]}>
+                  <Text style={styles.NotFavText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.NotFavContext} onPress={() => { addToFavorites(city) }}>
+                  <Text style={styles.NotFavText}>Add</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            {isFavorite && (
+              <View style={styles.menuBar}>
+                <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+                  <FontAwesomeIcon icon={faBars} size={30} color="white" style={{marginVertical: 10, marginHorizontal: 10}} />
+                </TouchableOpacity>
+              </View>
+            )}
 
-            <TouchableOpacity 
-            style={{backgroundColor: 'rgba(0,0,0,0.5)', width: '15%', alignItems: 'center', borderRadius: 5, position: 'absolute', top: 20, right: 20}} 
-            onPress={addToFavorites(city)}
-            >
-              <Text style={{color: 'white', fontSize: 20}}>Add</Text>
-            </TouchableOpacity>
-
-          <Text style={styles.cityName}>{city}</Text>
-          {error ? (
-            <Text style={styles.errorText}>{error}</Text>
-          ) : weather ? (
-            <View style={styles.currentContainer}>
-              <Image
-                source={{ uri: `https:${weather.condition.icon}` }}
-                style={{ width: 110, height: 100, tintColor: 'white', marginTop: 30, marginBottom: 5 }}
-              />
-              <Text style={styles.currentTemp}>{weather.temp_f.toFixed(0)}°</Text>
-              <Text style={styles.temp_feelsLike}>Feels Like {weather.feelslike_f.toFixed(0)}°</Text>
-
-              <View style={styles.weatherInfoContainer}>
-                <View style={styles.weatherInfo}>
-                  <FontAwesomeIcon icon={faWind} size={18} color="white" style={{ marginVertical: 2 }} />
-                  <Text style={styles.infoText}>{weather.wind_mph} mph</Text>
-                </View>
-                <View style={styles.weatherInfo}>
-                  <FontAwesomeIcon icon={faDroplet} size={18} color="white" style={{ marginVertical: 2 }} />
-                  <Text style={styles.infoText}>{weather.humidity}%</Text>
-                </View>
-                <View style={styles.weatherInfo}>
-                  <FontAwesomeIcon icon={faSun} size={18} color="white" style={{ marginVertical: 2 }} />
-                  <Text style={styles.infoText}>{weather.uv}</Text>
+            <Text style={styles.cityName}>{city}</Text>
+            {error ? (
+              <Text style={styles.errorText}>{error}</Text>
+            ) : weather ? (
+              <View style={styles.currentContainer}>
+                <Image
+                  source={{ uri: `https:${weather.condition.icon}` }}
+                  style={{ width: 110, height: 100, tintColor: 'white', marginTop: 30, marginBottom: 5 }}
+                />
+                <Text style={styles.currentTemp}>{weather.temp_f.toFixed(0)}°</Text>
+                <Text style={styles.temp_feelsLike}>Feels Like {weather.feelslike_f.toFixed(0)}°</Text>
+                <View style={styles.weatherInfoContainer}>
+                  <View style={styles.weatherInfo}>
+                    <FontAwesomeIcon icon={faWind} size={18} color="white" style={{ marginVertical: 2 }} />
+                    <Text style={styles.infoText}>{weather.wind_mph} mph</Text>
+                  </View>
+                  <View style={styles.weatherInfo}>
+                    <FontAwesomeIcon icon={faDroplet} size={18} color="white" style={{ marginVertical: 2 }} />
+                    <Text style={styles.infoText}>{weather.humidity}%</Text>
+                  </View>
+                  <View style={styles.weatherInfo}>
+                    <FontAwesomeIcon icon={faSun} size={18} color="white" style={{ marginVertical: 2 }} />
+                    <Text style={styles.infoText}>{weather.uv}</Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          ) : (
-            <Text style={styles.loadingText}>Loading...</Text>
-          )}
-
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={true} style={styles.hourlyScroll}>
-            <View style={styles.forecastTimeContainer}>
-              {forecast[0]?.hour.map((hr, index) => (
-                <View key={`${forecast[0].date}-${index}`} style={styles.hourContainer}>
-                  <Text style={styles.hourText}>{hr.time.substring(11, 16)}</Text>
-                  <Image
-                    source={{ uri: `https:${hr.condition.icon}` }}
-                    style={{
-                      width: 50,
-                      height: 50,
-                      tintColor: 'white',
-                      marginHorizontal: 20,
-                    }}
-                  />
-                  <Text style={styles.tempText}>{hr.temp_f.toFixed(0)}°</Text>
+            ) : (
+              <Text style={styles.loadingText}>Loading...</Text>
+            )}
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={true} style={styles.hourlyScroll}>
+              <View style={styles.forecastTimeContainer}>
+                <View style={styles.forecastHeader}>
+                  <FontAwesomeIcon icon={faClock} size={15} color='rgba(255, 255, 255, 0.7)' style={{ marginVertical: 4, marginHorizontal: 5 }} />
+                  <Text style={styles.forecastHeaderText}>HOURLY FORECAST</Text>
                 </View>
-              ))}
-            </View>
-          </ScrollView>
+                <View style={styles.forecastTime}>
+                  {forecast[0]?.hour.map((hr, index) => (
+                    <View key={`${forecast[0].date}-${index}`} style={styles.hourContainer}>
+                      <Text style={styles.hourText}>{hr.time.substring(11, 16)}</Text>
+                      <Image
+                        source={{ uri: `https:${hr.condition.icon}` }}
+                        style={{
+                          width: 50,
+                          height: 50,
+                          tintColor: 'white',
+                          marginHorizontal: 20,
+                        }}/>
+                      <Text style={styles.tempText}>{hr.temp_f.toFixed(0)}°</Text>
+                    </View>
+                  ))}
+                </View>
 
-          <ScrollView style={styles.forecastScroll}>
+              </View>
+            </ScrollView>
             <View style={styles.forecastDayContainer}>
               <View style={styles.forecastHeader}>
                 <FontAwesomeIcon icon={faCalendarDays} size={15} color='rgba(255, 255, 255, 0.7)' style={{ marginVertical: 2, marginHorizontal: 5 }} />
@@ -116,11 +131,10 @@ const CityWeather = ({ route }) => {
                 </View>
               ))}
             </View>
-          </ScrollView>
           </View>
         </ImageBackground>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -128,6 +142,12 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'flex-start',
     width: '100%',
+  },
+  menuBar: {
+    position: 'absolute',
+    top: 1,
+    right: 5,
+    borderRadius: 5,
 
   },
   overlay: {
@@ -136,7 +156,6 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     justifyContent:'flex-start', 
     padding: 10,
-    paddingTop: 25,
   },
   currentContainer: {
     marginVertical: 15,
@@ -147,24 +166,28 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   forecastTimeContainer: {
+/*     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%', */
+    padding: 15,
+    backgroundColor: 'rgba(0,0,0, 0.5)',
+    borderRadius: 10,
+  },
+  forecastTime: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    padding: 5,
-    backgroundColor: 'rgba(0,0,0, 0.5)',
-    borderRadius: 10,
   },
-  forecastScroll: {
-    width: '100%',
-    marginTop: 15,
-  },
+
   forecastDayContainer: {
     width: '100%',
     minHeight: 200,
     backgroundColor: 'rgba(0,0,0, 0.5)',
-    marginTop: 10,
-    padding: 20,
+    marginTop: 15,
+    marginBottom: 60,
+    padding: 15,
     borderRadius: 15,
 
   },
@@ -174,22 +197,21 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   cityName: {
-    fontSize: 50,
+    fontSize: 55,
     color: 'white',
-    textShadowColor: 'black',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 5,
     textAlign: 'center',
     marginTop: 25,
     marginBottom: 10,
-  },
-  currentTemp: {
-    fontSize: 75,
-    marginLeft: 25,
-    color: 'white',
     textShadowColor: 'black',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 5,
+  },
+  currentTemp: {
+    fontSize: 85,
+    marginLeft: 25,
+    color: 'white',
+
+    fontWeight: '200',
   },
   temp_feelsLike: {
     fontSize: 16,
@@ -255,6 +277,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginVertical: 10,
   },
+  NotFavContext:{
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    width: '15%', 
+    height: 40, 
+    alignItems: 'center', 
+    borderRadius: 5 
+  },
+  NotFavContainer: {
+    width: '100%', 
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  NotFavText: {
+    color: 'white', 
+    fontSize: 22, 
+    marginVertical: 'auto'
+  }
 });
 
 export default CityWeather;

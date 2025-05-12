@@ -53,7 +53,7 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#248dab',
+    backgroundColor: '#302f2f',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#248dab',
+    backgroundColor: '#302f2f',
     borderRadius: 5,
     width: "100%",
     height: 50,
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   },
   btn_text: {
     fontSize: 18,
-    color: "#248dab",
+    color: "#302f2f",
   },
   icon: {
     marginLeft: 10,
