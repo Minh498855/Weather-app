@@ -43,7 +43,7 @@ export const getWeather = async (city) => {
 
 export const getWeatherForecast = async (city) => {
     const response = await fetch(
-        `${WEATHER_BASE_URL}/forecast.json?key=${WEATHER_API_KEY}&q=${city}&days=10&aqi=no&alerts=no`
+        `${WEATHER_BASE_URL}/forecast.json?key=${WEATHER_API_KEY}&q=${city}&days=3&aqi=no&alerts=no`
     );
     
     if (!response.ok) {

@@ -7,6 +7,7 @@ export const useCityContext = () => useContext(CityContext);
 
 export const CityProvider = ({ children }) => {
     const [favorites, setFavorites] = useState([]);
+    const [unit, setUnit] = useState('F');
 
     useEffect(() => {
         const loadFavorites = async () => {
@@ -39,9 +40,16 @@ export const CityProvider = ({ children }) => {
         setFavorites((prev) => (prev.includes(city) ? prev : [...prev, city]));
     };
 
+    const RemoveFromFavorites = (city) => {
+        setFavorites((prev) => prev.filter((fav) => fav !== city));
+    };
+
     const value = {
         favorites,
         addToFavorites,
+        unit, 
+        setUnit,
+        RemoveFromFavorites,
     };
 
     return <CityContext.Provider value={value}>{children}</CityContext.Provider>;

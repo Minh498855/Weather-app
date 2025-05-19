@@ -1,15 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, ImageBackground, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, ImageBackground, Modal, TouchableWithoutFeedback } from 'react-native';
 import { searchCity, getWeather } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faMagnifyingGlass, faEllipsis } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faEllipsis, faCheck, faPen, faMinus } from '@fortawesome/free-solid-svg-icons';
 import { useCityContext } from '../contexts/CityContext';
 
 const Home = ({ navigation }) => {
   const [city, setCity] = useState('');
   const [error, setError] = useState('');
   const [favoriteDetails, setFavoriteDetails] = useState({});
-  const { favorites } = useCityContext();
+  const { favorites, unit, setUnit } = useCityContext();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editList, setEditList] = useState(false);
+  const [widthFavCity, setWidthFavCity] = useState('100%');
+
+
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const handleUnitSelection = (selectedUnit) => {
+    setUnit(selectedUnit);
+    setModalVisible(false);
+  };
+
+  const handleEditList = () => {
+    setModalVisible(false);
+    setEditList(true);
+    setWidthFavCity('85%');  
+  };
+
+  const hanleDeleteBtn = (city) => {
+    setEditList(false);
+    setWidthFavCity('100%');
+
+  };
 
   const handleSearch = async () => {
     try {
@@ -54,8 +79,14 @@ const Home = ({ navigation }) => {
     const details = favoriteDetails[item];
     const image = details?.image || '';
     const weather = details?.weather;
-
+  
     return (
+      <View style={{padding: 10, flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
+        {editList && (  
+          <TouchableOpacity onPress={hanleDeleteBtn} style={styles.deleteIcon}>
+            <FontAwesomeIcon icon={faMinus} size={25} color='white' style={{marginVertical: 9}} />
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('CityWeather', {
@@ -64,13 +95,18 @@ const Home = ({ navigation }) => {
               fromSearch: false,
             })
           }
-          style={styles.favoriteItem}
+          style={[styles.favoriteItem, {width: widthFavCity}]}
         >
           <ImageBackground source={{ uri: image }} style={styles.favoriteImage}>
             <View style={styles.favoriteContainer}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                <Text style={styles.favoriteCity}>{item}</Text>
-                {weather && <Text style={styles.weatherInfo}> {weather.temp_f.toFixed(0)}°</Text>}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginVertical: 20 }}>
+                <Text style={[styles.favoriteCity, {width: '70%'}]}>{item}</Text>
+  
+                {weather && 
+                <Text style={[styles.weatherInfo, {width: '20%'}]}> 
+                  {unit === 'C' ? weather.temp_c.toFixed(0) : weather.temp_f.toFixed(0)}°
+                </Text>}
+  
               </View>
               {weather && (
                 <View>
@@ -80,45 +116,89 @@ const Home = ({ navigation }) => {
             </View>
           </ImageBackground>
         </TouchableOpacity>
+      </View>
     );
   };
 
   return (
-      <View style={styles.container}>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginVertical: 20}}>   
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter city"
-              placeholderTextColor="rgba(0, 0, 0, 0.8)"
-              value={city}
-              onChangeText={setCity}
-              onSubmitEditing={handleSearch}
-            />
-            <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
-              <FontAwesomeIcon style={styles.searchIcon} icon={faMagnifyingGlass} />
-            </TouchableOpacity>
-          </View>
-          
-          <TouchableOpacity>
-            <View style={styles.menu_Icon}>
-              <FontAwesomeIcon icon={faEllipsis} size={25} style={{ color: 'white' }} />
-            </View>
-          </TouchableOpacity>
-
-        </View>
-
-        {error !== '' && <Text style={styles.error}>{error}</Text>}
-
-        <View style={{ flex: 1, width: '100%' }}>
-          <FlatList
-            data={favorites}
-            keyExtractor={(item, index) => `${item}-${index}`}
-            renderItem={renderFavoriteCity}
-            nestedScrollEnabled={true}
+    <View style={styles.container}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginVertical: 20 }}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter city"
+            placeholderTextColor="rgba(0, 0, 0, 0.8)"
+            value={city}
+            onChangeText={setCity}
+            onSubmitEditing={handleSearch}
           />
+          <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
+            <FontAwesomeIcon style={styles.searchIcon} icon={faMagnifyingGlass} />
+          </TouchableOpacity>
         </View>
+
+        <TouchableOpacity onPress={openModal}>
+          <View style={styles.menu_Icon}>
+            <FontAwesomeIcon icon={faEllipsis} size={25} style={{ color: 'white' }} />
+          </View>
+        </TouchableOpacity>
       </View>
+
+      <Modal
+        animationType='fade'
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        
+          <View style={styles.modalContainer}>
+
+              <View style={[styles.modalContent, {marginBottom: 10, marginTop: 7, borderRadius: 5}]}>
+                <TouchableOpacity onPress={handleEditList} style={{ flexDirection: 'row', justifyContent: 'space-between',width: '90%', padding: 10, alignItems: 'center', marginLeft: 25}}>
+                  <Text style={styles.modalText}>Edit List</Text>
+                  <FontAwesomeIcon icon={faPen} size={15} style={styles.modalCheckIcon} />
+                </TouchableOpacity>
+              </View>
+
+              <View style={[styles.modalContent, {borderTopStartRadius: 5, borderTopEndRadius: 5}]}>
+                <View style={{width: 25, height: 25, marginTop: 10}}>
+                  {unit === 'C' && <FontAwesomeIcon icon={faCheck} size={20} style={styles.modalCheckIcon} />}
+                </View>
+                <TouchableOpacity onPress={() => handleUnitSelection ('C')}>
+                  <View style={styles.modalDegrees}>
+                    <Text style={styles.modalText}>Celcius</Text>
+                    <Text style={[styles.modalText, {fontWeight: '500'}]}>°C</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+
+
+              <View style={[styles.modalContent, {marginBottom: 7, borderBottomStartRadius: 5, borderBottomEndRadius: 5}]}>
+                <View style={{width: 25, height: 25, marginTop: 10}}>
+                  {unit === 'F' && <FontAwesomeIcon icon={faCheck} size={20} style={styles.modalCheckIcon} />}
+                </View>
+                <TouchableOpacity onPress={() => handleUnitSelection ('F')}>
+                  <View  style={styles.modalDegrees}>
+                    <Text style={styles.modalText}>Fahrenheit</Text>
+                    <Text style={[styles.modalText, {fontWeight: '500'}]}>°F</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+
+          </View>
+      </Modal>
+
+      {error !== '' && <Text style={styles.error}>{error}</Text>}
+
+      <View style={{ flex: 1, width: '100%' }}>
+        <FlatList
+          data={favorites}
+          keyExtractor={(item, index) => `${item}-${index}`}
+          renderItem={renderFavoriteCity}
+          nestedScrollEnabled={true}
+        />
+      </View>
+    </View>
   );
 };
 
@@ -135,9 +215,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'white',
     flexDirection: 'row',
-/*     marginHorizontal: 30,
-    marginBottom: 30,
-    marginTop: 50, */
     width: '85%',
     marginLeft: 20,
   },
@@ -162,13 +239,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   favoriteItem: {
-    marginVertical: 10,
-    width: '95%',
     height: 150,
     borderRadius: 10,
     overflow: 'hidden',
-    alignSelf: 'center',
-
   },
   favoriteImage: {
     width: '100%',
@@ -187,7 +260,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '300',
     marginHorizontal: 10,
-    paddingBottom: 10,
   },
   weatherInfo: {
     color: 'white',
@@ -196,18 +268,58 @@ const styles = StyleSheet.create({
     fontWeight: '300',
   },
   menu_Icon: {
-/*   position: 'absolute', 
-  top: 5, 
-  right: 10, 
-  marginVertical: 10,  */
-  width: 30, 
-  height: 30, 
-  alignItems: 'center', 
-  borderRadius: 20, 
-  borderWidth: 2, 
-  borderColor: 'white',
-  marginVertical: 7,
-  marginHorizontal: 10,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'white',
+    marginVertical: 7,
+    marginHorizontal: 10,
+  },
+
+  modalContainer: {
+    position: 'absolute',
+    top: 57,
+    right: 10,
+    width: '53%',
+    backgroundColor: 'black',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  modalContent: {
+    flexDirection: 'row', 
+    alignItems: 'center',
+    backgroundColor: 'rgb(64,63,63)',
+    width: '95%'
+  },
+  modalDegrees: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '95%', 
+    padding: 10, 
+    alignItems: 'center'
+  },
+
+  modalText: {
+    fontSize: 20,
+    color: 'white',
+    fontWeight: '300',
+  },
+
+  modalCheckIcon: {
+    color: 'white',
+    marginLeft: 7,
+  },
+  deleteIcon: {
+    alignItems: 'center',
+    width: '10%',
+    height: '30%',
+    marginHorizontal: 5,
+    marginVertical: 'auto',
+    backgroundColor: 'red',
+    borderRadius: 50,
   }
 });
 

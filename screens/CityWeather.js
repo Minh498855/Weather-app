@@ -12,7 +12,7 @@ const CityWeather = ({ route, navigation }) => {
   const [weather, setWeather] = useState('');
   const [forecast, setForecast] = useState([]);
   const [error, setError] = useState(null);
-  const { favorites, addToFavorites } = useCityContext();
+  const { favorites, addToFavorites, unit } = useCityContext();
 
   const isFavorite = favorites.includes(city);
 
@@ -72,8 +72,12 @@ const CityWeather = ({ route, navigation }) => {
                   source={{ uri: `https:${weather.condition.icon}` }}
                   style={{ width: 110, height: 100, tintColor: 'white', marginTop: 30, marginBottom: 5 }}
                 />
-                <Text style={styles.currentTemp}>{weather.temp_f.toFixed(0)}°</Text>
-                <Text style={styles.temp_feelsLike}>Feels Like {weather.feelslike_f.toFixed(0)}°</Text>
+                <Text style={styles.currentTemp}>
+                  {unit === 'C' ? weather.temp_c.toFixed(0) : weather.temp_f.toFixed(0)}°
+                </Text>
+                <Text style={styles.temp_feelsLike}>
+                  Feels Like {unit === 'C' ? weather.feelslike_c.toFixed(0) : weather.feelslike_f.toFixed(0)}°
+                </Text>
                 <View style={styles.weatherInfoContainer}>
                   <View style={styles.weatherInfo}>
                     <FontAwesomeIcon icon={faWind} size={18} color="white" style={{ marginVertical: 2 }} />
@@ -110,7 +114,9 @@ const CityWeather = ({ route, navigation }) => {
                           tintColor: 'white',
                           marginHorizontal: 20,
                         }}/>
-                      <Text style={styles.tempText}>{hr.temp_f.toFixed(0)}°</Text>
+                      <Text style={styles.tempText}>
+                        {unit === 'C' ? hr.temp_c.toFixed(0) : hr.temp_f.toFixed(0)}°
+                      </Text>
                     </View>
                   ))}
                 </View>
@@ -126,8 +132,12 @@ const CityWeather = ({ route, navigation }) => {
                 <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
                   <Text style={styles.forecastText}>{(day.date).substring(5, 10)}</Text>
                   <Image source={{ uri: `https:${day.day.condition.icon}` }} style={{ width: 40, height: 40, tintColor: 'white' }} />
-                  <Text style={[styles.forecastText, { color: '#4a9ee8' }]}>{day.day.mintemp_f.toFixed(0)}°</Text>
-                  <Text style={[styles.forecastText, { color: '#f50c37' }]}>{day.day.maxtemp_f.toFixed(0)}°</Text>
+                  <Text style={[styles.forecastText, { color: '#4a9ee8' }]}>
+                    {unit === 'C' ? day.day.mintemp_c.toFixed(0) : day.day.mintemp_f.toFixed(0)}°
+                  </Text>
+                  <Text style={[styles.forecastText, { color: '#f50c37' }]}>
+                    {unit === 'C' ? day.day.maxtemp_c.toFixed(0) : day.day.maxtemp_f.toFixed(0)}°
+                  </Text>
                 </View>
               ))}
             </View>
@@ -166,10 +176,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   forecastTimeContainer: {
-/*     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%', */
     padding: 15,
     backgroundColor: 'rgba(0,0,0, 0.5)',
     borderRadius: 10,
