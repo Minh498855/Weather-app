@@ -16,6 +16,11 @@ const CityWeather = ({ route, navigation }) => {
 
   const isFavorite = favorites.includes(city);
 
+  const handleAddBtn = (cityToAdd) => {
+    addToFavorites(cityToAdd);
+    navigation.navigate('Home');
+  };
+
 
   useEffect(() => {
     const loadWeather = async () => {
@@ -50,7 +55,7 @@ const CityWeather = ({ route, navigation }) => {
                 <TouchableOpacity onPress={() => navigation.navigate('Home')} style={[styles.NotFavContext, { width: '20%' }]}>
                   <Text style={styles.NotFavText}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.NotFavContext} onPress={() => { addToFavorites(city) }}>
+                <TouchableOpacity style={styles.NotFavContext} onPress={() => { handleAddBtn(city)}}>
                   <Text style={styles.NotFavText}>Add</Text>
                 </TouchableOpacity>
               </View>
@@ -96,37 +101,40 @@ const CityWeather = ({ route, navigation }) => {
             ) : (
               <Text style={styles.loadingText}>Loading...</Text>
             )}
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={true} style={styles.hourlyScroll}>
-              <View style={styles.forecastTimeContainer}>
-                <View style={styles.forecastHeader}>
-                  <FontAwesomeIcon icon={faClock} size={15} color='rgba(255, 255, 255, 0.7)' style={{ marginVertical: 4, marginHorizontal: 5 }} />
-                  <Text style={styles.forecastHeaderText}>HOURLY FORECAST</Text>
-                </View>
-                <View style={styles.forecastTime}>
-                  {forecast[0]?.hour.map((hr, index) => (
-                    <View key={`${forecast[0].date}-${index}`} style={styles.hourContainer}>
-                      <Text style={styles.hourText}>{hr.time.substring(11, 16)}</Text>
-                      <Image
-                        source={{ uri: `https:${hr.condition.icon}` }}
-                        style={{
-                          width: 50,
-                          height: 50,
-                          tintColor: 'white',
-                          marginHorizontal: 20,
-                        }}/>
-                      <Text style={styles.tempText}>
-                        {unit === 'C' ? hr.temp_c.toFixed(0) : hr.temp_f.toFixed(0)}°
-                      </Text>
-                    </View>
-                  ))}
-                </View>
 
+            <View style={styles.forecastHeaderContainer}>
+              <View style={[styles.forecastHeader, {marginTop: 10}]}>
+                <FontAwesomeIcon icon={faClock} size={15} color='rgba(255, 255, 255, 0.7)' style={{ marginVertical: 4, marginHorizontal: 5 }} />
+                <Text style={styles.forecastHeaderText}>HOURLY FORECAST</Text>
+              </View>
+            </View>
+
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={true} style={styles.forecastTimeScroll}>
+              <View style={styles.forecastTime}>
+                {forecast[0]?.hour.map((hr, index) => (
+                  <View key={`${forecast[0].date}-${index}`} style={styles.hourContainer}>
+                    <Text style={styles.hourText}>{hr.time.substring(11, 16)}</Text>
+                    <Image
+                      source={{ uri: `https:${hr.condition.icon}` }}
+                      style={{
+                        width: 50,
+                        height: 50,
+                        tintColor: 'white',
+                        marginHorizontal: 20,
+                      }}
+                    />
+                    <Text style={styles.tempText}>
+                      {unit === 'C' ? hr.temp_c.toFixed(0) : hr.temp_f.toFixed(0)}°
+                    </Text>
+                  </View>
+                ))}
               </View>
             </ScrollView>
+
             <View style={styles.forecastDayContainer}>
               <View style={styles.forecastHeader}>
                 <FontAwesomeIcon icon={faCalendarDays} size={15} color='rgba(255, 255, 255, 0.7)' style={{ marginVertical: 2, marginHorizontal: 5 }} />
-                <Text style={styles.forecastHeaderText}>10-DAY FORECAST</Text>
+                <Text style={styles.forecastHeaderText}>3-DAY FORECAST</Text>
               </View>
               {forecast.map((day, index) => (
                 <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
@@ -141,6 +149,8 @@ const CityWeather = ({ route, navigation }) => {
                 </View>
               ))}
             </View>
+
+          
           </View>
         </ImageBackground>
       </ScrollView>
@@ -163,7 +173,6 @@ const styles = StyleSheet.create({
   overlay: {
     backgroundColor: 'rgba(0,0,0, 0.25)', 
     width: '100%', 
-    alignItems: 'center', 
     justifyContent:'flex-start', 
     padding: 10,
   },
@@ -174,25 +183,41 @@ const styles = StyleSheet.create({
     padding: 30,
     backgroundColor: 'rgba(0,0,0, 0.5)',
     borderRadius: 10,
+    marginHorizontal: 'auto',
   },
   forecastTimeContainer: {
     padding: 15,
     backgroundColor: 'rgba(0,0,0, 0.5)',
     borderRadius: 10,
+    marginTop: 10,
   },
   forecastTime: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
+
+  },
+  forecastHeaderContainer: {
+    width: '100%', 
+    paddingHorizontal: 15,
+    marginTop: 10,
+    backgroundColor: 'rgba(0,0,0, 0.5)',
+    borderTopStartRadius: 15,
+    borderTopEndRadius: 15,
   },
 
+  forecastTimeScroll: {
+    paddingLeft: 15,
+    backgroundColor: 'rgba(0,0,0, 0.5)',
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
+  },
   forecastDayContainer: {
     width: '100%',
     minHeight: 200,
     backgroundColor: 'rgba(0,0,0, 0.5)',
     marginTop: 15,
-    marginBottom: 60,
     padding: 15,
     borderRadius: 15,
 
@@ -248,9 +273,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginVertical: 20,
   },
-  hourlyScroll: {
-    marginTop: 5,
-  },
+
   hourContainer: {
     alignItems: 'center',
     marginHorizontal: 10,
@@ -299,7 +322,21 @@ const styles = StyleSheet.create({
     color: 'white', 
     fontSize: 22, 
     marginVertical: 'auto'
+  },
+  uvContainer: {
+    width: '50%', 
+    backgroundColor: 'rgba(0,0,0,0.5)', 
+    marginVertical: 10, 
+    padding: 15, 
+    borderRadius: 15
+  },
+  sunsetText: {
+    color: 'white', 
+    fontSize: 15, 
+    opacity: 0.7, 
+    fontWeight: 'bold'
   }
 });
 
 export default CityWeather;
+

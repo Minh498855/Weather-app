@@ -9,7 +9,7 @@ const Home = ({ navigation }) => {
   const [city, setCity] = useState('');
   const [error, setError] = useState('');
   const [favoriteDetails, setFavoriteDetails] = useState({});
-  const { favorites, unit, setUnit } = useCityContext();
+  const { favorites, removeFromFavorites ,unit, setUnit } = useCityContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [editList, setEditList] = useState(false);
   const [widthFavCity, setWidthFavCity] = useState('100%');
@@ -30,10 +30,10 @@ const Home = ({ navigation }) => {
     setWidthFavCity('85%');  
   };
 
-  const hanleDeleteBtn = (city) => {
+  const hanleDeleteBtn = (cityToRemove) => {
+    removeFromFavorites(cityToRemove);
     setEditList(false);
     setWidthFavCity('100%');
-
   };
 
   const handleSearch = async () => {
@@ -83,7 +83,7 @@ const Home = ({ navigation }) => {
     return (
       <View style={{padding: 10, flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
         {editList && (  
-          <TouchableOpacity onPress={hanleDeleteBtn} style={styles.deleteIcon}>
+          <TouchableOpacity onPress={() => hanleDeleteBtn(item)} style={styles.deleteIcon}>
             <FontAwesomeIcon icon={faMinus} size={25} color='white' style={{marginVertical: 9}} />
           </TouchableOpacity>
         )}
@@ -100,10 +100,10 @@ const Home = ({ navigation }) => {
           <ImageBackground source={{ uri: image }} style={styles.favoriteImage}>
             <View style={styles.favoriteContainer}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginVertical: 20 }}>
-                <Text style={[styles.favoriteCity, {width: '70%'}]}>{item}</Text>
+                <Text style={[styles.favoriteCity, {width: '69%'}]}>{item}</Text>
   
                 {weather && 
-                <Text style={[styles.weatherInfo, {width: '20%'}]}> 
+                <Text style={[styles.weatherInfo, {width: '25%'}]}> 
                   {unit === 'C' ? weather.temp_c.toFixed(0) : weather.temp_f.toFixed(0)}°
                 </Text>}
   
@@ -259,12 +259,12 @@ const styles = StyleSheet.create({
     fontSize: 55,
     color: 'white',
     fontWeight: '300',
-    marginHorizontal: 10,
+    marginHorizontal: 15,
   },
   weatherInfo: {
     color: 'white',
     fontSize: 55,
-    marginHorizontal: 10,
+    marginHorizontal: 5,
     fontWeight: '300',
   },
   menu_Icon: {

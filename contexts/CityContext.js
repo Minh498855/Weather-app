@@ -40,16 +40,16 @@ export const CityProvider = ({ children }) => {
         setFavorites((prev) => (prev.includes(city) ? prev : [...prev, city]));
     };
 
-    const RemoveFromFavorites = (city) => {
+    const removeFromFavorites = (city) => {
         setFavorites((prev) => prev.filter((fav) => fav !== city));
     };
 
     const value = {
         favorites,
         addToFavorites,
+        removeFromFavorites,
         unit, 
-        setUnit,
-        RemoveFromFavorites,
+        setUnit
     };
 
     return <CityContext.Provider value={value}>{children}</CityContext.Provider>;

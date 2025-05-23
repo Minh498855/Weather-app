@@ -1,10 +1,8 @@
 const IMAGE_API_KEY = process.env.REACT_APP_IMAGE_API_KEY 
 const WEATHER_API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
 
-
 const IMAGE_BASE_URL = "https://api.unsplash.com";
 const WEATHER_BASE_URL = "http://api.weatherapi.com/v1";
-
 
 
 export const searchCity = async (query) => {
